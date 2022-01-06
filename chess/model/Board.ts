@@ -1,4 +1,4 @@
-import { BoardType, PieceType, Move, Color } from "../types"
+import { BoardType, PieceType, Move, Color, SimpleBoard } from "./types"
 import { Bishop, King, Knight, Pawn, Queen, Rook, Piece } from "./pieces"
 import Pos from "./Pos"
 import { opponent } from "./utils"
@@ -26,7 +26,7 @@ export default class Board {
     return this.pieceAt(pos) == null
   }
 
-  #setPiece(piece: Piece, oldPos: Pos, newPos: Pos) {
+  setPiece(piece: Piece, oldPos: Pos, newPos: Pos) {
     this.board[newPos.y][newPos.x] = piece
     this.board[oldPos.y][oldPos.x] = null
     piece.pos = newPos
@@ -39,12 +39,12 @@ export default class Board {
   }
 
   castle(king: King, oldPos: Pos, newPos: Pos): void {
-    this.#setPiece(king, oldPos, newPos)
+    this.setPiece(king, oldPos, newPos)
     const rook = this.pieceAt(new Pos(
-      newPos.x === 6 ? 7 : 0,
+      newPos.x === 6 ? 7 : 0, 
       king.pos.y
-    ))
-    this.#setPiece(rook, rook.pos, new Pos(
+    )) as Rook
+    this.setPiece(rook, rook.pos, new Pos(
       rook.pos.x === 7 ? 5 : 3,
       rook.pos.y
     ))
@@ -56,7 +56,7 @@ export default class Board {
       this.castle(piece, oldPos, newPos)
       return
     }
-    this.#setPiece(piece, oldPos, newPos)
+    piece && this.setPiece(piece, oldPos, newPos)
   }
 
   kingPosition(color: Color): Pos {
@@ -105,6 +105,35 @@ export default class Board {
         .flatMap(piece => piece.controlledSquares(this))
       , (a, b) => a.equals(b)
     )
+  }
+
+  static simple(): SimpleBoard {
+    return Board.createBoard().map(row => (
+      row.map(piece => (
+        piece ? {
+          name: piece.name,
+          color: piece.color
+        }
+        : null
+      ))
+    ))
+  }
+
+  static toFullImplementation(board: SimpleBoard) {
+    const constructors = {
+      'pawn': Pawn,
+      'bishop': Bishop,
+      'rook': Rook,
+      'queen': Queen,
+      'king': King,
+      'knight': Knight   
+    }
+    const fullBoard = board.map((row, y) => (
+      row.map((piece, x) => (
+        piece ? new constructors[piece.name](piece.color, x, y) : null
+      ))
+    ))
+    return new Board(fullBoard)
   }
 
   // Vain testaukseen

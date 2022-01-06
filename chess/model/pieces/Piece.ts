@@ -1,10 +1,11 @@
-import { Color, Direction, PieceName } from '../../types'
+import { Color, Direction, PieceName, SimplePiece } from '../types'
 import Pos from '../Pos'
 import Board from '../Board'
 import { opponent } from '../utils'
+import { Pawn, Bishop, Queen, Rook, King, Knight } from '.'
 
 export abstract class Piece {
-  name: PieceName
+  abstract name: PieceName
   color: Color
   pos: Pos
   constructor(color: Color, x: number, y: number) {
@@ -35,6 +36,8 @@ export abstract class Piece {
       case 'rook':
       case 'bishop':
         return this.validMoves(board).filter(pos => captureMove(pos) || pos.in(squaresBetween))
+      default:
+        return []
     }
   }
 
@@ -42,6 +45,18 @@ export abstract class Piece {
     const squaresBetween = this.pos.squaresBetween(pinnningPiece.pos)
     return this.validMoves(board)
       .filter(pos => pos.equals(pinnningPiece.pos) || pos.in(squaresBetween))
+  }
+
+  static toFullImplementation(piece: SimplePiece, x: number, y: number): Piece {
+    const constructors = {
+      'pawn': Pawn,
+      'bishop': Bishop,
+      'rook': Rook,
+      'queen': Queen,
+      'king': King,
+      'knight': Knight
+    }
+    return new constructors[piece.name](piece.color, x, y) as Piece  //eslint-disable-line
   }
 }
 

@@ -1,4 +1,4 @@
-import { Direction } from '../types'
+import { Direction } from './types'
 import Board from './Board'
 import { range } from 'lodash'
 

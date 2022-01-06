@@ -1,4 +1,4 @@
-import { Color } from "../types"
+import { Color, SimpleBoard } from "./types"
 import Board from "./Board"
 import Pos from './Pos'
 import { opponent } from "./utils"
@@ -24,22 +24,30 @@ export default class Game {
     this.turn = opponent(this.turn)
   }
 
-  legalMoves(piece: Piece): Pos[] {
-    if (this.check) return piece.validMovesInCheck(this.board)
-    if (piece instanceof King) return piece.legalMoves(this.board)
-    const pinningPiece = this.board.pinningPiece(piece)
-    if (pinningPiece) return piece.validMovesOnPin(this.board, pinningPiece)
-    return piece.validMoves(this.board)
+  static legalMoves(board: Board, check: boolean, piece: Piece): Pos[] {
+    if (check) return piece.validMovesInCheck(board)
+    if (piece instanceof King) return piece.legalMoves(board)
+    const pinningPiece = board.pinningPiece(piece)
+    if (pinningPiece) return piece.validMovesOnPin(board, pinningPiece)
+    return piece.validMoves(board)
   }
 
   makeMove(oldPos: Pos, newPos: Pos) {
     const piece = this.board.pieceAt(oldPos)
     if (!piece) return
-    const legalMoves = this.legalMoves(piece)
+    const legalMoves = Game.legalMoves(this.board, this.check, piece)
     if (newPos.in(legalMoves)) {
       this.board.movePiece(oldPos, newPos)
       this.switchTurns()
       this.check = this.board.inCheck(opponent(this.turn))
     }
+  }
+
+  static getMoves(board: SimpleBoard, check: boolean, pos: Pos) {
+    const piece = board[pos.y][pos.x]
+    if (!piece) return []
+    const fullBoard = Board.toFullImplementation(board)
+    const fullPiece = Piece.toFullImplementation(piece, pos.x, pos.y)
+    return this.legalMoves(fullBoard, check, fullPiece)
   }
 }

@@ -1,4 +1,4 @@
-import { Color, Direction, PieceName } from "../../types"
+import { Color, Direction, PieceName } from "../types"
 import { Piece } from './Piece'
 import Pos from "../Pos"
 import Board from '../Board'

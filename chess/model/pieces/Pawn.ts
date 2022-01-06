@@ -1,4 +1,4 @@
-import { Color, PieceName } from "../../types"
+import { Color, PieceName } from "../types"
 import Board from "../Board"
 import Pos from "../Pos"
 import { Piece } from './Piece'
@@ -40,7 +40,8 @@ export class Pawn extends Piece {
     }
 
     this.captureSquares().forEach(square => {
-      if (board.pieceAt(square) && board.pieceAt(square).color !== this.color) {
+      const piece = board.pieceAt(square)
+      if (piece && piece.color !== this.color) {
         validMoves.push(square)
       }
     })
@@ -49,7 +50,8 @@ export class Pawn extends Piece {
     const fifthRank = this.color === 'white' ? 4 : 3
     const lastMove = board.moves.at(-1)
     if (
-      this.pos.y === fifthRank
+      lastMove
+      && this.pos.y === fifthRank
       && lastMove.pieceName === 'pawn'
       && lastMove.pieceColor !== this.color
       && Math.abs(lastMove.newPos.y - lastMove.oldPos.y) === 2

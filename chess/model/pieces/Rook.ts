@@ -1,4 +1,4 @@
-import { Color, Direction, PieceName } from "../../types"
+import { Color, Direction, PieceName } from "../types"
 import { LongRangePiece } from './Piece'
 
 export class Rook extends LongRangePiece {

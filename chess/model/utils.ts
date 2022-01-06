@@ -1,4 +1,4 @@
-import { Color } from "../types";
+import { Color } from "./types";
 
 export function opponent(color: Color): Color {
   return color === 'white' ? 'black' : 'white'
